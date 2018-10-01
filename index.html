@@ -18,18 +18,19 @@
 </head>
 
 <body>
-	<h1>RPS Multiplayer</h1>
 
-	<div class="jumbotron">
-			
+	<div class="jumbotron container py-3">
+			<h1 class="text-center py-4">RPS Multiplayer</h1>
+			<form class="col-6 mr-auto">	
 		<div id="pInfo"></div>
 		<input id="playerName" type=text placeholder='Enter name'>
 		<input id="submitB" type=submit value=LogIn>
 		<div id="pTurn"></div>
-		<div class="row">
-		<div id="player1">
+	</form>		
+		<div class="row col-12">
+		<div id="player1" class="col-4 ml-auto">
 			<div id="p1name" class="py-3"><h2>Waiting for Player 1</h2></div>
-			<div id="p1choice" class="card">
+			<div id="p1choice" class="card col-lg-10 d-flex align-items-start">
 				<div id="p1selected"><h2></h2></div>
 				<div class="p1choices">Rock</div>
 				<div class="p1choices">Paper</div>
@@ -41,9 +42,9 @@
 		<div id="results">
 			<h2></h2></div>
 		
-		<div id="player2">
+		<div id="player2" class="col-4 mr-auto">
 			<div id="p2name" class="py-3"><h2>Waiting for Player 2</h2></div>
-			<div id="p2choice" class="card">
+			<div id="p2choice" class="card col-lg-10">
 			<div id="p2selected"><h2></h2></div>
 			<div class="p2choices">Rock</div>
 			<div class="p2choices">Paper</div>

@@ -26,7 +26,7 @@ var snapshotP2;
 var dataReqP2;
 var player;
 var numberPlayers = 0;
-
+var active=true;
 $("#msg").on("click", function(){
   event.preventDefault();
   var message=$("#messageBox").val().trim();
@@ -38,13 +38,20 @@ $("#msg").on("click", function(){
 
 });
 
+var height = 0;
 database.ref("/chat").on("child_added", function(snapshot) {
   var data=snapshot.val();
   console.log(snapshot.val());
-	$("#chatbox").append("<br>"+data.msg);
+  $("#chatbox").append("<br>"+data.msg);
+});
+
+$("#chatbox").scroll(function() {
+  $( "span" ).css( "display", "inline" ).fadeOut( "slow" );
 });
 
 function rps() {
+  active=false;
+  console.log("fnc works");
   database.ref("/users/player1").on("value", function (snapshot) {
     dataReqP1 = snapshot;
   }, function (errorObject) {
@@ -60,6 +67,8 @@ function rps() {
   if (dataReqP1.val() !== null && dataReqP2.val() !== null) {
     var p1choice = dataReqP1.val().choice;
     var p2choice = dataReqP2.val().choice;
+    console.log("p1"+p1choice);
+    console.log("p2"+p2choice);
 
     if (p1choice === p2choice) {
       $("#p1selected").append(p1choice);
@@ -67,54 +76,59 @@ function rps() {
       $("#results").text("It's a tie");
     }
 
-    else if (p1choice === "rock" && p2choice === "scissors") {
+    else if (p1choice === "Rock" && p2choice === "Scissors") {
+      console.log("yes!");
       $("#p1selected").append(p1choice);
       $("#p2selected").append(p2choice);
-      $("#results").text(player1.playerTurn`${"wins"}`);
+      $("#results").text(player1.playerTurn+" is the winner!");
+      player1.wins++;
+      player2.losses++;
+      console.log(player1.wins);
+      console.log(player2.wins);
+    }
+    else if (p1choice === "Rock" && p2choice === "Paper") {
+      $("#p1selected").append(p1choice);
+      $("#p2selected").append(p2choice);
+      $("#results").text(player2.playerTurn+" is the winner!");
+      player2.wins++;
+      player1.losses++;
+
+    }
+    else if (p1choice === "Scissors" && p2choice === "Paper") {
+      $("#p1selected").append(p1choice);
+      $("#p2selected").append(p2choice);
+      $("#results").text(player1.playerTurn+" is the winner!");
       player1.wins++;
       player2.losses++;
 
     }
-    else if (p1choice === "rock" && p2choice === "paper") {
+    else if (p1choice === "Scissors" && p2choice === "Rock") {
       $("#p1selected").append(p1choice);
       $("#p2selected").append(p2choice);
-      $("#results").tex(player2.playerTurn`${"wins"}`);
+      $("#results").text(player2.playerTurn+" is the winner!");
       player2.wins++;
       player1.losses++;
 
     }
-    else if (p1choice === "scissors" && p2choice === "paper") {
+    else if (p1choice === "Paper" && p2choice === "Scissors") {
       $("#p1selected").append(p1choice);
       $("#p2selected").append(p2choice);
-      $("#results").text(player1.playerTurn`${"wins"}`);
-      player1.wins++;
-      player2.losses++;
-
-    }
-    else if (p1choice === "scissors" && p2choice === "rock") {
-      $("#p1selected").append(p1choice);
-      $("#p2selected").append(p2choice);
-      $("#results").text(player2.playerTurn`${"wins"}`);
+      $("#results").text(player2.playerTurn+" is the winner!");
       player2.wins++;
       player1.losses++;
 
     }
-    else if (p1choice === "paper" && p2choice === "scissors") {
+    else if (p1choice === "Paper" && p2choice === "Rock") {
       $("#p1selected").append(p1choice);
       $("#p2selected").append(p2choice);
-      $("#results").text(player2.playerTurn`${"wins"}`);
-      player2.wins++;
-      player1.losses++;
-
-    }
-    else if (p1choice === "paper" && p2choice === "rock") {
-      $("#p1selected").append(p1choice);
-      $("#p2selected").append(p2choice);
-      $("#results").text(player1.playerTurn`${"wins"}`);
+      $("#results").text(player1.playerTurn+" is the winner!");
       player1.wins++;
       player2.losses++;
     };
-      
+    database.ref().update({
+      selector:1
+    });  
+
       database.ref("/users/player1").once("value", function(snapshot){
         dataReqP1=snapshot;
       }, function(errorObject){
@@ -139,8 +153,8 @@ function rps() {
           losses:player2.losses
         });
       };
-      $("#results").html("");
-	    $("#p2choice").html("");
+
+    
   };
 };
 
@@ -150,14 +164,7 @@ database.ref("/users/player1").on("value", function (snapshot) {
   if(data===null){
     $("#p1name").text("Waiting for player 1");
     $("#p1results").empty();
-
-    if (player1.playerTurn !== null) {
-      database.ref("/chat").push({
-        player: player1.playerTurn,
-        msg: "disconnected",
-        dateAdded: firebase.datase.ServerValue.TIMESTAMP
-      });
-  }}
+}
   else if (data !== null) {
     player1.playerTurn = data.player;
     player1.wins = data.wins;
@@ -165,7 +172,7 @@ database.ref("/users/player1").on("value", function (snapshot) {
     //write on html
     $("#p1name").text(player1.playerTurn);
     console.log(player1.playerTurn);
-    $("#p1results").html("<p>Wins" + player1.wins + "Losses: " + player1.losses + "</p>");
+    $("#p1results").html("<p>Wins " + player1.wins + " Losses: " + player1.losses + "</p>");
     //if snapshot (data in database) is empty
   } 
 }, function (errorObject) {
@@ -186,7 +193,7 @@ database.ref("/users/player2").on("value", function (snapshot) {
     player2.losses = data.losses;
     //write on html
     $("#p2name").text(player2.playerTurn);
-    $("#p2results").html("<p>Wins" + player2.wins + "Losses: " + player2.losses + "</p>");
+    $("#p2results").html("<p>Wins " + player2.wins + " Losses: " + player2.losses + "</p>");
     //if snapshot (data in database) is empty
   } 
 }, function (errorObject) {
@@ -231,10 +238,12 @@ $("#submitB").on("click", function () {
       wins:0,
       losses:0
     });
-
-    
-    $("#pInfo").html("Hi " + player + ". You are player 2");
+    databse.ref().update({
+      turn: 1
+      });
+    $("#pInfo").html("Hi " + player + "! You are player 2");
     $("#pTurn").html("Waiting for " + player1.playerTurn + " to choose");
+    $("#playerName").val("");
   } else {
     $("#pInfo").text("Sorry 2 people already playing");
   };
@@ -249,8 +258,7 @@ if(data.selector===2 && numberPlayers===1){
   $("#pTurn").text("Waiting for "+ player2.playerTurn+" to choose");
 }
 else if(data.selector===1 &&numberPlayers===2){
-  $("#p1choice").html("");
-  $("#pTurn").text("Waiting "+ player1.playerTurn+" to choose");
+  $("#pTurn").text("Waiting for "+ player1.playerTurn+" to choose");
 }
 
 if(data.selector===1&& numberPlayers===1){
@@ -261,7 +269,7 @@ else if(data.selector===2&&numberPlayers===2){
   
   $("#pTurn").html("It's your turn!");
 }
-else if(data.selector===3){
+else if(data.selector===3 && active===true){
   $("#pTurn").text("");
   rps();
 };
