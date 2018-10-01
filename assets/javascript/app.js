@@ -40,7 +40,8 @@ $("#msg").on("click", function(){
 
 database.ref("/chat").on("child_added", function(snapshot) {
   var data=snapshot.val();
-	$("#chatbox").append(data);
+  console.log(snapshot.val());
+	$("#chatbox").append("<br>"+data.msg);
 });
 
 function rps() {
@@ -113,9 +114,7 @@ function rps() {
       player1.wins++;
       player2.losses++;
     };
-      database.ref().update({
-        selector: 1
-      });
+      
       database.ref("/users/player1").once("value", function(snapshot){
         dataReqP1=snapshot;
       }, function(errorObject){
@@ -232,9 +231,7 @@ $("#submitB").on("click", function () {
       wins:0,
       losses:0
     });
-    database.ref().update({
-      selector: 1
-    });
+
     
     $("#pInfo").html("Hi " + player + ". You are player 2");
     $("#pTurn").html("Waiting for " + player1.playerTurn + " to choose");
